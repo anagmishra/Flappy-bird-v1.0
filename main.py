@@ -35,5 +35,43 @@ button_img = pygame.image.load("images/restart_button.png")
 
 #Function to display text on the screen
 def draw_text(text, font, white, x, y):
-    img = font.render(text, True, white)
-    screen.blit(img, (x, y))
+    image = font.render(text, True, white)
+    screen.blit(image, (x, y))
+
+def reset_game():
+    pipe_group.empty()
+    flappy.rect.x = 100
+    flappy.rect.y = int(HEIGHT/2)
+    score = 0
+    return score
+
+class Bird(pygame.sprite.Sprite):
+
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = []
+        self.index = 0
+        self.counter = 0
+        for num in range(1, 4):
+            img = pygame.image.load(f"images/bird{num}.png")
+            self.images.append(img)
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center[x, y]
+        self.vel = 0
+        self.click = False
+
+    def update(self):
+        if flying == True:
+            self.vel += 0.5
+            if self.vel> 8:
+                self.vel = 8
+            if self.rect.bottom<768:
+                self.rect.y += int(self.vel)
+
+        if game_over == False:
+            if pygame.mouse.get_pressed()[0] == 1 and self.click == False:
+                self.click = True
+                self.vel = -10
+            if pygame.mouse.get_pressed()[0] == 0:
+                self.click == False
