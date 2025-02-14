@@ -47,7 +47,7 @@ def reset_game():
 
 class Bird(pygame.sprite.Sprite):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y): #First method that gets called
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         self.index = 0
@@ -75,3 +75,21 @@ class Bird(pygame.sprite.Sprite):
                 self.vel = -10
             if pygame.mouse.get_pressed()[0] == 0:
                 self.click == False
+            #Handling animation of the bird
+            flap_cooldown = 5
+            self.counter += 1
+            if self.counter > flap_cooldown:
+                self.counter = 0
+                self.index += 1
+                if self.index >= len(self.images):
+                    self.index = 0
+                self.image = self.images[self.index]
+            self.image = pygame.transform.rotate(self.images[self.index], self.vel*-2)
+        else:
+            self.image = pygame.transform.rotate(self.images[self.index], -90)
+
+class Pipe(pygame.sprite.Sprite):
+    def __init__(self, x, y, position):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("img/pipe.png")
+        self.rect = self.image.get_rect()
