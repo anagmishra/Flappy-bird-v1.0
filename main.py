@@ -36,7 +36,7 @@ button_img = pygame.image.load("images/restart_button.png")
 #Function to display text on the screen
 def draw_text(text, font, white, x, y):
     image = font.render(text, True, white)
-    screen.blit(image, (x, y))
+    screen.blit(image, (x, y)) #Helps to actually add the background image
 
 def reset_game():
     pipe_group.empty()
@@ -76,7 +76,7 @@ class Bird(pygame.sprite.Sprite):
             if pygame.mouse.get_pressed()[0] == 0:
                 self.click == False
             #Handling animation of the bird
-            flap_cooldown = 5
+            flap_cooldown = 5 #Total number of frames per each image
             self.counter += 1
             if self.counter > flap_cooldown:
                 self.counter = 0
@@ -93,3 +93,43 @@ class Pipe(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("img/pipe.png")
         self.rect = self.image.get_rect()
+        if position == 1:
+            self.image = pygame.transform.flip(self.image, False, True)
+            self.rect.bottomleft = [x, y - int(pipe_gap / 2)]
+        elif position == -1:
+            self.rect.topleft = [x, y + int(pipe_gap / 2)]
+    def update(self):
+        self.rect.x -= scroll_speed
+        if self.rect < 0:
+            self.kill()
+    
+class Button:
+    def __init__(self, x, y, image):
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+    def draw(self):
+        action = False
+        pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1:
+                action = True
+        screen.blit(self.image,(self.rect.x, self.rect.y))
+        return action
+
+pipe_group = pygame.sprite.Group()
+bird_group = pygame.sprite.Group()
+
+flappy = Bird(100, int(HEIGHT/2))
+
+bird_group.add(flappy)
+
+button = Button(WIDTH//2-50, HEIGHT//2-100, button_img)
+
+run = True
+while run:
+    clock.tick(fps)
+    screen.blit(bg, (0,0))
+    pipe_group.draw(screen)
+    bird_group.draw(screen)
+    bird_group.update()
