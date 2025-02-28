@@ -133,3 +133,19 @@ while run:
     pipe_group.draw(screen)
     bird_group.draw(screen)
     bird_group.update()
+
+    screen.blit(ground_img, (ground_scroll, 768))
+    if len(pipe_group) > 0:
+        if (bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.left and bird_group.sprites()[0].rect.right < pipe_group.sprites()[0].rect.right and pass_pipe == False):
+            pass_pipe = True
+        if pass_pipe == True:
+            if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
+                score+=1
+                pass_pipe = False
+    draw_text(str(score), font, white, int(WIDTH/2), 20)
+    if (pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0):
+        game_over = True
+    if flappy.rect.bottom >= 768:
+        game_over = True
+        flying = False
+    
