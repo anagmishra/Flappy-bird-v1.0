@@ -3,7 +3,7 @@ from pygame.locals import *
 import random
 
 pygame.init()
-
+#Super keyword is used to access properties from a parent class into a child class
 clock = pygame.time.Clock()
 fps = 60
 
@@ -29,7 +29,7 @@ score = 0
 pass_pipe = False
 
 #Loading the images
-bg = pygame.image.load("images/backgroung.png")
+bg = pygame.image.load("images/background.png")
 ground_img = pygame.image.load("images/ground.png")
 button_img = pygame.image.load("images/restart_button.png")
 
@@ -45,7 +45,7 @@ def reset_game():
     score = 0
     return score
 
-class Bird(pygame.sprite.Sprite):
+class Bird(pygame.sprite.Sprite): #Class is a blueprint for creating objects
 
     def __init__(self, x, y): #First method that gets called
         pygame.sprite.Sprite.__init__(self)
@@ -57,9 +57,9 @@ class Bird(pygame.sprite.Sprite):
             self.images.append(img)
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
-        self.rect.center[x, y]
+        self.rect.center=[x, y]
         self.vel = 0
-        self.click = False
+        self.clicked = False
 
     def update(self):
         if flying == True:
@@ -70,11 +70,11 @@ class Bird(pygame.sprite.Sprite):
                 self.rect.y += int(self.vel)
 
         if game_over == False:
-            if pygame.mouse.get_pressed()[0] == 1 and self.click == False:
-                self.click = True
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.clicked = True
                 self.vel = -10
             if pygame.mouse.get_pressed()[0] == 0:
-                self.click == False
+                self.clicked == False
             #Handling animation of the bird
             flap_cooldown = 5 #Total number of frames per each image
             self.counter += 1
@@ -91,7 +91,7 @@ class Bird(pygame.sprite.Sprite):
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, x, y, position):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("img/pipe.png")
+        self.image = pygame.image.load("images/pipe.png")
         self.rect = self.image.get_rect()
         if position == 1:
             self.image = pygame.transform.flip(self.image, False, True)
@@ -100,7 +100,7 @@ class Pipe(pygame.sprite.Sprite):
             self.rect.topleft = [x, y + int(pipe_gap / 2)]
     def update(self):
         self.rect.x -= scroll_speed
-        if self.rect < 0:
+        if self.rect.right < 0:
             self.kill()
     
 class Button:
@@ -149,3 +149,33 @@ while run:
         game_over = True
         flying = False
     
+    if flying == True and game_over == False:
+        time_now = pygame.time.get_ticks()
+        if time_now - last_pipe > pipe_frequency:
+            pipe_height = random.randint(-100, 100)
+            btm_pipe = Pipe(WIDTH, int(HEIGHT/2) + pipe_height, -1)
+            top_pipe = Pipe(WIDTH, int(HEIGHT/2) + pipe_height, 1)
+            pipe_group.add(btm_pipe)
+            pipe_group.add(top_pipe)
+            last_pipe = time_now
+
+        pipe_group.update()
+
+        ground_scroll -= scroll_speed
+        if abs(ground_scroll) > 35:
+            ground_scroll = 0
+    
+    if game_over == True:
+        if button.draw():
+            game_over = False
+            score = reset_game()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if(event.type == pygame.MOUSEBUTTONDOWN and flying == False and game_over == False):
+            flying = True
+
+    pygame.display.update()
+
+pygame.quit()
